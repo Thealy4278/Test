@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Math Quest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" id="home-link"><span class="logo" aria-hidden="true">+</span>Math Quest</a>
+    <div class="header-actions">
+      <button id="player-chip" class="player-chip" type="button" title="My progress" hidden>
+        <span id="player-avatar" class="avatar sm" aria-hidden="true"></span>
+        <span id="player-name"></span>
+      </button>
+      <button id="switch-btn" class="btn ghost small" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Pick a player -->
+    <section id="profiles" class="screen" hidden>
+      <h1>Who's practicing?</h1>
+      <p class="lead">Pick your player and log in, or make a new one to save your scores and set goals.</p>
+      <div id="profile-grid" class="profile-grid"></div>
+      <div id="offline-note" class="card offline-note" hidden>
+        <h2>Player profiles need the Math Quest server</h2>
+        <p>To log in and save progress, close this page and double-click <b>start.bat</b> in the Math Quest folder.
+          You can still practice below, but scores won't be saved.</p>
+      </div>
+      <div class="guest-row">
+        <button id="guest-btn" class="btn ghost" type="button">Play without a profile</button>
+      </div>
+      <p id="storage-note" class="note"></p>
+    </section>
+
+    <!-- Log in -->
+    <section id="login-screen" class="screen" hidden>
+      <div class="card narrow login-card">
+        <span id="login-avatar" class="avatar xl" aria-hidden="true"></span>
+        <h1 id="login-title"></h1>
+        <p id="login-sub" class="muted"></p>
+        <form id="login-form" autocomplete="off">
+          <label class="field">
+            <span id="login-pw-label">Password</span>
+            <input id="login-password" type="password" autocomplete="current-password" required minlength="4" maxlength="64">
+          </label>
+          <label id="login-confirm-field" class="field" hidden>
+            <span>Type it again</span>
+            <input id="login-confirm" type="password" autocomplete="new-password" maxlength="64">
+          </label>
+          <p id="login-error" class="form-error" role="alert" hidden></p>
+          <div class="form-actions">
+            <button id="login-back" type="button" class="btn ghost">← Back</button>
+            <button id="login-submit" type="submit" class="btn primary">Log in</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Create / edit a player -->
+    <section id="profile-form-screen" class="screen" hidden>
+      <div class="card narrow">
+        <h1 id="profile-form-title">New player</h1>
+        <form id="profile-form" autocomplete="off">
+          <label class="field">
+            <span>Name</span>
+            <input id="pf-name" type="text" maxlength="20" required placeholder="Your first name">
+          </label>
+          <div class="field">
+            <span id="pf-avatar-label">Pick an avatar</span>
+            <div id="pf-avatars" class="avatar-grid" role="radiogroup" aria-labelledby="pf-avatar-label"></div>
+          </div>
+          <label class="field">
+            <span>Grade</span>
+            <select id="pf-grade"></select>
+          </label>
+          <label class="field">
+            <span id="pf-password-label">Password</span>
+            <input id="pf-password" type="password" autocomplete="new-password" minlength="4" maxlength="64">
+            <small id="pf-password-hint" class="field-hint">At least 4 letters or numbers. A PIN like 2468 works too.</small>
+          </label>
+          <label class="field">
+            <span>Type the password again</span>
+            <input id="pf-confirm" type="password" autocomplete="new-password" maxlength="64">
+          </label>
+          <p id="pf-error" class="form-error" role="alert" hidden></p>
+          <div class="form-actions">
+            <button id="pf-cancel" type="button" class="btn ghost">Cancel</button>
+            <button type="submit" class="btn primary">Save player</button>
+          </div>
+          <div id="pf-danger" class="danger-zone" hidden>
+            <button id="pf-delete" type="button" class="btn danger small">Delete this player</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- A player's progress and goals -->
+    <section id="dashboard" class="screen" hidden>
+      <div class="card dash-head">
+        <span id="dash-avatar" class="avatar xl" aria-hidden="true"></span>
+        <div class="dash-id">
+          <h1 id="dash-name"></h1>
+          <p id="dash-sub" class="muted"></p>
+        </div>
+        <div class="dash-actions">
+          <button id="dash-edit" class="btn ghost small" type="button">Edit player</button>
+          <button id="dash-practice" class="btn primary" type="button">Practice now</button>
+        </div>
+      </div>
+
+      <div id="stat-tiles" class="stat-tiles"></div>
+
+      <div class="card">
+        <h2>Recent scores</h2>
+        <p class="muted chart-sub">Your last 15 quizzes. The line marks an A (90%).</p>
+        <div id="score-chart" class="chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <h2>My goals</h2>
+          <button id="add-goal-btn" class="btn small" type="button">+ Add a goal</button>
+        </div>
+        <form id="goal-form" class="goal-form" hidden>
+          <label class="field">
+            <span>Goal</span>
+            <select id="goal-type"></select>
+          </label>
+          <label class="field">
+            <span id="goal-target-label">How many?</span>
+            <input id="goal-target" type="number" inputmode="numeric" required>
+          </label>
+          <label id="goal-topic-field" class="field">
+            <span>Topic</span>
+            <select id="goal-topic"></select>
+          </label>
+          <div class="form-actions">
+            <button id="goal-cancel" type="button" class="btn ghost small">Cancel</button>
+            <button type="submit" class="btn primary small">Add goal</button>
+          </div>
+        </form>
+        <ul id="goal-list" class="goal-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Topics</h2>
+        <div id="topic-table" class="table-wrap"></div>
+      </div>
+
+      <div class="card">
+        <h2>Quiz history</h2>
+        <ol id="history-list" class="history-list"></ol>
+      </div>
+    </section>
+
+    <!-- Choose grade, topic, and number of questions -->
+    <section id="setup" class="screen" hidden>
+      <h1 id="setup-title">Let's practice math!</h1>
+      <p class="lead">Pick your grade, choose a topic, and see how many you can get right.</p>
+
+      <div class="card">
+        <h2><span class="step">1</span>Choose your grade</h2>
+        <div id="grade-grid" class="grade-grid" role="group" aria-label="Grade"></div>
+
+        <h2><span class="step">2</span>Choose a topic</h2>
+        <div id="topic-list" class="chip-list" role="group" aria-label="Topic">
+          <p class="muted">Pick a grade first.</p>
+        </div>
+
+        <h2><span class="step">3</span>How many questions?</h2>
+        <div id="count-list" class="chip-list" role="group" aria-label="Number of questions"></div>
+
+        <button id="start-btn" class="btn primary big" disabled>Start Quiz</button>
+      </div>
+    </section>
+
+    <!-- Answer the questions -->
+    <section id="quiz" class="screen" hidden>
+      <div class="quiz-top">
+        <div id="quiz-meta" class="quiz-meta"></div>
+        <button id="quit-btn" class="btn ghost small">Quit</button>
+      </div>
+      <div class="progress" aria-hidden="true"><div id="progress-bar"></div></div>
+
+      <div class="card question-card">
+        <div class="q-head">
+          <span id="q-number" class="q-number"></span>
+          <span id="q-topic" class="q-topic"></span>
+        </div>
+        <div id="q-text" class="q-text"></div>
+        <form id="answer-form" autocomplete="off">
+          <label for="answer-input" class="sr-only">Your answer</label>
+          <input id="answer-input" class="answer-input" type="text" spellcheck="false" placeholder="Your answer">
+          <p id="q-hint" class="hint"></p>
+        </form>
+        <div class="q-nav">
+          <button id="prev-btn" class="btn">← Back</button>
+          <button id="next-btn" class="btn primary">Next →</button>
+        </div>
+      </div>
+
+      <div id="unanswered" class="warning" hidden>
+        <p id="unanswered-text"></p>
+        <div class="warning-actions">
+          <button id="goto-unanswered-btn" class="btn">Go answer them</button>
+          <button id="grade-anyway-btn" class="btn primary">Grade anyway</button>
+        </div>
+      </div>
+
+      <nav id="dots" class="dots" aria-label="Jump to question"></nav>
+    </section>
+
+    <!-- Results -->
+    <section id="results" class="screen" hidden>
+      <div id="score-card" class="card score-card">
+        <div id="score-ring" class="score-ring">
+          <div>
+            <div id="score-pct" class="score-pct"></div>
+            <div id="score-letter" class="score-letter"></div>
+          </div>
+        </div>
+        <div class="score-body">
+          <h1 id="score-message"></h1>
+          <p id="score-detail" class="lead"></p>
+          <p id="saved-note" class="saved-note"></p>
+          <div class="result-actions">
+            <button id="retry-btn" class="btn">Try these again</button>
+            <button id="new-btn" class="btn primary">New questions</button>
+            <button id="change-btn" class="btn ghost">Change grade or topic</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="goal-updates" class="card goal-updates" hidden>
+        <div class="section-head">
+          <h2>Goal progress</h2>
+          <button id="results-progress-btn" class="btn ghost small" type="button">See my progress →</button>
+        </div>
+        <ul id="goal-update-list" class="goal-list"></ul>
+      </div>
+
+      <h2 class="review-title">Review your answers</h2>
+      <ol id="review-list" class="review-list"></ol>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="alert" hidden></div>
+
+  <script src="questions.js"></script>
+  <script src="profiles.js"></script>
+  <script src="celebrate.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
